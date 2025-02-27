@@ -126,6 +126,31 @@ public:
                 if (now->tm_wday == 5 || now->tm_wday == 6 || now->tm_wday == 0 || now->tm_wday == 1)
                     return;
 
+                if (now->tm_hour == 6)
+                {
+                    std::vector<uint16> eventIds = { EVENT_CTA_ALTERAC_VALLEY, EVENT_CTA_ARATHI_BASIN, EVENT_CTA_WARSONG_GULCH,
+                        EVENT_CTA_EYE_OF_THE_STORM, EVENT_CTA_ISLE_OF_CONQUEST, EVENT_CTA_STRAND_OF_THE_ANCIENTS };
+
+                    for (uint16 const& activeEvent : eventIds)
+                    {
+                        if (sGameEventMgr->IsActiveEvent(activeEvent))
+                        {
+                            GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+
+                            if (std::size_t(activeEvent) >= events.size())
+                            {
+                                LOG_ERROR("module", "[CTA-Switch]: Error, tried to stop unexisting event. ID: {}", activeEvent);
+                                return;
+                            }
+
+                            GameEventData const& eventData = events[activeEvent];
+
+                            sGameEventMgr->StopEvent(activeEvent, true);
+                            LOG_INFO("module", "[CTA-Switch]: Stopping {} ({})", eventData.Description, activeEvent);
+                        }
+                    }
+                }
+
                 if (!sGameEventMgr->IsActiveEvent(EVENT_CTA_ALTERAC_VALLEY) &&
                     !sGameEventMgr->IsActiveEvent(EVENT_CTA_ARATHI_BASIN) &&
                     !sGameEventMgr->IsActiveEvent(EVENT_CTA_WARSONG_GULCH) &&
